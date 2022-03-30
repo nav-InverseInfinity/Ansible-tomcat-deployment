@@ -1,0 +1,22 @@
+---
+
+- hosts: all
+  become: true
+
+  tasks:
+    - name : Dockerhub login to pull the tomcat_server image
+      command: echo "$(dockerpass)" | docker login -u inverseinfinity --password-stdin
+
+    - name: Pulling Docker image from Dockerhub repo
+      command: docker pull inverseinfinity/tomcat_server:latest
+
+    - name: remove already running tomcat server if exist
+      command: /home/ansadmin/remove_docker.sh
+      ignore_errors: yes
+
+
+    - name: changing ownership on docker socket
+      command: chown ansadmin.docker /var/run/docker.sock
+
+    - name: Running tomcat-server
+      command: docker run -d --name tomcat -p 8080:8080 inverseinfinity/tomcat_server:latest
