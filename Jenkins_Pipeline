@@ -1,0 +1,71 @@
+
+pipeline {
+    agent any
+
+    environment {
+        dockerpass = credentials('dockerpass')
+        aws_ip = credentials('awsip')
+    }
+
+    tools {
+        maven "M2_HOME"
+    }
+
+    stages {
+        stage('Build') {
+            steps {
+                git branch: 'main', url: 'https://github.com/InverseInfinity/tomcat_test.git'
+
+                sh "mvn -Dmaven.test.failure.ignore=true clean package"
+            }
+
+            post {
+                success {
+                    junit '**/target/surefire-reports/TEST-*.xml'
+                    archiveArtifacts artifacts: '**/*.war'
+                    // if its already created remove "followSymlinks: false" //
+                }
+            }
+        }
+
+        stage ('Push_Artifact') {
+            steps {
+                sshagent(credentials: ['ansadmin']) {
+                    sh '''
+                        scp /var/lib/jenkins/workspace/ansible_tomcat_deployment/webapp/target/*.war ansadmin@$aws_ip:/opt/docker/
+                    '''
+                }
+            }
+        }
+
+        stage ('Build_Push_Docker_Image') {
+            steps {
+                sshagent(credentials: ['ansadmin']) {
+                    sh '''
+                        ssh ansadmin@$aws_ip "cd /opt/docker/ && ./docker_build_push.sh"
+                    '''
+                }
+            }
+        }
+
+        stage ('Deploying') {
+            steps {
+                sshagent(credentials: ['ansadmin']) {
+                    sh '''
+                        ssh ansadmin@$aws_ip "cd /opt/docker/ && ansible-playbook -i /opt/docker/hosts deployment-playbook.yml"
+                    '''
+                }
+            }
+        }         
+    }
+
+    post {
+        success {
+            sh ''' 
+                echo "Successfully Deployed onto remote-servers" 
+            '''
+        }
+    }
+}
+
+
