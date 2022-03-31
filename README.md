@@ -98,7 +98,7 @@ ansible –version
 ### Next we will have to install Docker on both Ansible server and remote server 
 ### To install docker please refer my guide [here](https://github.com/nav-InverseInfinity/docker-setup)
 
-### After installation from Ansible server, we will have to write Dockerfile to build docker image from tomcat, 
+### After installation from Ansible server, we will have to write Dockerfile to build docker image from tomcat, Bash Script and Ansible-playbook.
 
 - ###   Dockerfile - please refer to my Dockerfile [here](https://github.com/nav-InverseInfinity/Ansible-tomcat-deployment/blob/main/Dockerfile) 	
   Base from tomcat, however the latest version have two directories "webapps" & "webapps.dist", by deafult tomcat run files from "webapps", but in the latest version default files are loacted in "webapps.dist", so we will have to move the files from "webapps.dist" to "webapps"
@@ -119,7 +119,23 @@ ansible –version
   *  Changing the ownership on the docker socket so it can run docker as a non-root user.
   *  Running docker image to initiate the tomcat container which has our built artifact WAR file, thus deployed on the remote server which can be seen on the browser.
 	
-    ##### 	
+  #### Note - Since we are going to automate the whole process via Jenkins and it will be controlled by "Jenkins", we will have to create a user called Jenkins with UID - 1000 (Jenkins perform task on UID 1000) in Ansible server, so we can run the bash script to push Docker image "docker_build_push.sh" [here](https://github.com/nav-InverseInfinity/Ansible-tomcat-deployment/blob/main/docker_build_push.sh).  
+
+  #### Once after completing the above setups, on Ansible server, we will have to do the following 
+
+  #### Create user named Jenkins
+  ```sh useradd jenkins ```
+
+  #### To change the userid, you will have to logout from current user (ec2-user) and login as different user -in this case we have "ansadmin" (Note -you    should turn on ssh - PasswordAuthentication YES to log ansadmin with password) 
+
+  #### change userid and group id 
+  ```sh sudo usermod -u 1003 ec2-user ```
+  ```sh sudo groupmod -g 1003 ec2-user ```
+
+  #### Now assign jenkins user to UID 1000 
+  ```sh sudo usermod -u 1000 jenkins ```
+  ```sh sudo groupmod -g 1000 jenkins ```
+	
 
 
 In order to automate the whole CI/CD environment, we will have to establish the connections between servers. Since we are going to connect to our Ansible server, we will have to install “**SSH-Agent**” plugin and make the connection, please refer my guide to Jenkins connections [repo]([https://github.com/nav-InverseInfinity/Jenkins-setup](https://github.com/nav-InverseInfinity/Jenkins-setup)).
