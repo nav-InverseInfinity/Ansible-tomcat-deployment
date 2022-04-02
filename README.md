@@ -155,7 +155,7 @@ In order to automate the whole CI/CD environment, we will have to establish the 
 
 We should also establish connection between Ansible server and remtoe server via ssh
 
-```bash
+``` bash
 
 ssh-keygen  
 #goto “./.ssh” and copy public id
