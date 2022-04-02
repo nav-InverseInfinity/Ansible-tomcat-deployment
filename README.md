@@ -124,17 +124,27 @@ ansible –version
   #### Once after completing the above setups, on Ansible server, we will have to do the following 
 
   #### Create user named Jenkins
-  ```sh useradd jenkins ```
+  ``` bash 
+  useradd jenkins 
+  ```
 
   #### To change the userid, you will have to logout from current user (ec2-user) and login as different user -in this case we have "ansadmin" (Note -you    should turn on ssh - PasswordAuthentication YES to log ansadmin with password) 
 
   #### change userid and group id 
-  ```sh sudo usermod -u 1003 ec2-user ```
-  ```sh sudo groupmod -g 1003 ec2-user ```
+  ``` bash 
+  sudo usermod -u 1003 ec2-user 
+  ```
+  ``` bash
+  sudo groupmod -g 1003 ec2-user 
+  ```
 
   #### Now assign jenkins user to UID 1000 
-  ```sh sudo usermod -u 1000 jenkins ```
-  ```sh sudo groupmod -g 1000 jenkins ```
+  ``` bash
+  sudo usermod -u 1000 jenkins 
+  ```
+  ``` bash
+  sudo groupmod -g 1000 jenkins
+  ```
 	
 
 
@@ -164,7 +174,7 @@ vi authorized_keys
 
 Plan is to build Jenkins CI/CD pipeline with environmental variables, here we are going to pass docker login password and AWS IP as “**secret text**”. DockerHub password = **PASS** and AWS IP = **AWS_IP**
 Since we are going to build WAR file from JAVA source code, we will need "tools" - here we are using "maven"
-```sh
+```bash
  tools {
         maven "M2_HOME"
     }
